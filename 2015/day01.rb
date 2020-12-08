@@ -10,7 +10,6 @@ include Helper
 input = options[:input] || "#{__FILE__}".gsub(/\.rb/, ".input")
 
 data = get_data(input).join("")
-puts data
 floor = 0
 
 first_time_in_basemennt = nil
