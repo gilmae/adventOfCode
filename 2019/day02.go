@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"intcode"
 	"io/ioutil"
+
+	"github.com/gilmae/adventOfCode/intcode"
 )
 
 var inputFile = flag.String("inputFile", "inputs/day02.input", "Relative file path to use as input.")
