@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/gilmae/adventOfCode/intcode"
+	"github.com/gilmae/adventOfCode/2019/intcode"
 )
 
 var inputFile = flag.String("inputFile", "inputs/day02.input", "Relative file path to use as input.")
