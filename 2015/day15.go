@@ -60,8 +60,12 @@ func buildRecipe(recipe Recipe, ingredients []string, pantry map[string]Ingredie
 	ingredient := ingredients[0]
 	if len(ingredients) == 1 {
 		recipe[ingredient] = spaceLeft
-		value := evaluateRecipe(recipe, pantry)
-		return value
+		score, calories := evaluateRecipe(recipe, pantry)
+		if calories == 500 {
+			return score
+		} else {
+			return -1
+		}
 
 	} else {
 		remainingIngredients := make([]string, len(ingredients)-1)
@@ -84,11 +88,12 @@ func buildRecipe(recipe Recipe, ingredients []string, pantry map[string]Ingredie
 	return largest
 }
 
-func evaluateRecipe(recipe Recipe, ingredients map[string]Ingredient) int {
+func evaluateRecipe(recipe Recipe, ingredients map[string]Ingredient) (int, int) {
 	capacity := 0
 	durability := 0
 	flavour := 0
 	texture := 0
+	calories := 0
 
 	for r := range recipe {
 		ing := ingredients[r]
@@ -97,11 +102,12 @@ func evaluateRecipe(recipe Recipe, ingredients map[string]Ingredient) int {
 		durability += recipe[r] * ing.durability
 		flavour += recipe[r] * ing.flavour
 		texture += recipe[r] * ing.texture
+		calories += recipe[r] * ing.calories
 	}
 
 	if capacity <= 0 || durability <= 0 || flavour <= 0 || texture <= 0 {
-		return 0
+		return 0, 0
 	}
 
-	return capacity * texture * durability * flavour
+	return capacity * texture * durability * flavour, calories
 }
