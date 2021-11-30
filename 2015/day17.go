@@ -17,6 +17,8 @@ func copy(m map[int]bool) map[int]bool {
 }
 
 func fitIntoContainers(remainder int, containers []int, seen map[int]int, path map[int]bool) {
+	// THis should probaly be memoized a bit
+	// Also, it should probably keep a runnning count of min to save a loop in main()
 	if remainder == 0 {
 		return
 	}
