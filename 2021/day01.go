@@ -4,9 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"strconv"
+	"strings"
 )
 
-var inputFile = flag.String("inputFile", "inputs/day12.input", "Relative file path to use as input.")
+var inputFile = flag.String("inputFile", "inputs/day01.input", "Relative file path to use as input.")
 
 func main() {
 	flag.Parse()
@@ -15,5 +17,22 @@ func main() {
 		return
 	}
 	contents := string(bytes)
-	fmt.Println(contents)
+	lines := strings.Split(contents, "\n")
+
+	previous := 0
+
+	count := -1
+	for i := 0; i < len(lines)-2; i++ {
+		one, _ := strconv.Atoi(lines[i])
+		two, _ := strconv.Atoi(lines[i+1])
+		three, _ := strconv.Atoi(lines[i+2])
+
+		depth := one + two + three
+		if depth > previous {
+			count++
+		}
+		previous = depth
+	}
+
+	fmt.Println(count)
 }
