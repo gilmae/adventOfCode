@@ -10,6 +10,7 @@ import (
 )
 
 var inputFile = flag.String("inputFile", "inputs/day23.input", "Relative file path to use as input.")
+var part = flag.String("part", "a", "Which part")
 
 func main() {
 	flag.Parse()
@@ -20,13 +21,16 @@ func main() {
 	contents := string(bytes)
 	lines := strings.Split(contents, "\n")
 
-	registers := make(map[string]int)
+	registers := map[string]int{"a": 0, "b": 0}
+
+	if *part == "b" {
+		registers["a"] = 1
+	}
 
 	pc := 0
 
 	cmdRx := regexp.MustCompile("(\\w{3}) ([\\w\\d+-]+),?\\s?([\\d+-]+)?")
 	for pc < len(lines) {
-		fmt.Println(pc)
 		parts := cmdRx.FindStringSubmatch(lines[pc])
 
 		switch parts[1] {
