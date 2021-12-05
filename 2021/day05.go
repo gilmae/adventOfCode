@@ -17,6 +17,40 @@ type Coords struct {
 	x, y int
 }
 
+func traverse(start, end Coords) []Coords {
+	var deltaX int
+	length := 1
+	if start.x != end.x {
+		length += int(math.Abs(float64(end.x) - float64(start.x)))
+	} else {
+		length += int(math.Abs(float64(end.y) - float64(start.y)))
+	}
+	out := make([]Coords, length)
+
+	if start.x > end.x {
+		deltaX = -1
+	} else if start.x == end.x {
+		deltaX = 0
+	} else {
+		deltaX = 1
+	}
+
+	var deltaY int
+	if start.y > end.y {
+		deltaY = -1
+	} else if start.y == end.y {
+		deltaY = 0
+	} else {
+		deltaY = 1
+	}
+
+	for d := 0; d < length; d++ {
+		c := Coords{start.x + deltaX*d, start.y + deltaY*d}
+		out[d] = c
+	}
+	return out
+}
+
 func main() {
 	flag.Parse()
 	bytes, err := ioutil.ReadFile(*inputFile)
@@ -43,40 +77,10 @@ func main() {
 			if *part == "a" {
 				// No diagonals in part a
 				continue
-			} else {
-				xDelta := 1
-				yDelta := 1
-				if startX > endX {
-					xDelta = -1
-				}
-				if startY > endY {
-					yDelta = -1
-				}
-				for d := 0; d <= int(math.Abs(float64(endX)-float64(startX))); d++ {
-					c := Coords{startX + xDelta*d, startY + yDelta*d}
-					points[c]++
-				}
-				continue
 			}
 		}
-		if startX > endX {
-			startX, endX = endX, startX
-		}
-		if startY > endY {
-			startY, endY = endY, startY
-		}
-		if startX != endX {
-
-			for x := startX; x <= endX; x++ {
-				c := Coords{x, startY}
-				points[c]++
-			}
-		} else {
-
-			for y := startY; y <= endY; y++ {
-				c := Coords{startX, y}
-				points[c]++
-			}
+		for _, c := range traverse(Coords{startX, startY}, Coords{endX, endY}) {
+			points[c] += 1
 		}
 	}
 
