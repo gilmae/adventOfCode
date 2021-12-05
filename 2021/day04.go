@@ -34,15 +34,6 @@ func NewBoard(grid [][]int) Board {
 }
 
 func (b *Board) HasWinner() bool {
-	// Check diagonal from 0,0 to 4,4
-	// if b.check(0, 0, 1, 1, 5) {
-	// 	return true
-	// }
-	// Check diagonal from 4,0 to 0,4
-	// if b.check(0, 0, -1, 1, 5) {
-	// 	return true
-	// }
-
 	// Check rows and columns
 	for i := 0; i < 5; i++ {
 		// Check row
@@ -103,16 +94,15 @@ func main() {
 
 	numBoards := (len(lines) - 1) / 6
 	boards := make([]Board, numBoards)
-	// Get
+
 	for g := 0; g < numBoards; g++ {
 		offset := 2 + g*6
 		grid := make([][]int, 5)
 
-		for y := 0; y < 5; y++ {
+		for y, line := range lines[offset : offset+5] {
 			row := make([]int, 5)
-			numbers := rx.FindStringSubmatch(lines[offset+y])
+			numbers := rx.FindStringSubmatch(line)
 			for x := 1; x <= 5; x++ {
-
 				row[x-1], _ = strconv.Atoi(numbers[x])
 			}
 			grid[y] = row
@@ -123,11 +113,10 @@ func main() {
 	if *part == "a" {
 		for _, s := range calls {
 			num, _ := strconv.Atoi(s)
-			for b, board := range boards {
+			for _, board := range boards {
 
 				if board.CallNumber(num) {
-					fmt.Println(b, num, num*board.Score())
-					fmt.Println(board)
+					fmt.Println(num * board.Score())
 					return
 				}
 			}
@@ -145,8 +134,7 @@ func main() {
 
 			}
 			if len(newBoards) == 0 {
-				fmt.Println(boards)
-				fmt.Println(boards[0].Score(), num, boards[0].Score()*num)
+				fmt.Println(boards[0].Score() * num)
 				return
 			}
 
