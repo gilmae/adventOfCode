@@ -46,13 +46,13 @@ func main() {
 	minFuel := 1000000000
 	alignmentPos := -1
 	for pos := minPos; pos <= maxPos; pos++ {
-
 		fuel := 0
 		for k, v := range subs {
 			distanceToMove := int(math.Abs(float64(pos - k)))
 			if *part == "a" {
 				fuel += distanceToMove * v
 			} else {
+				//fuel += (distanceToMove*distanceToMove + distanceToMove) / 2
 				fuel += fuelForDistanceChange[distanceToMove] * v
 			}
 		}
@@ -62,6 +62,6 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Aligining on position %d costs %d\n", alignmentPos, minFuel)
+	fmt.Printf("Aligning on position %d costs %d\n", alignmentPos, minFuel)
 
 }
