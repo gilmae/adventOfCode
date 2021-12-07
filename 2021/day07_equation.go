@@ -40,7 +40,7 @@ func main() {
 	fuelForDistanceChange[0] = 0
 
 	for i := 1; i <= maxPos-minPos; i++ {
-		fuelForDistanceChange[i] = i + fuelForDistanceChange[i-1]
+		fuelForDistanceChange[i] = (i*i + i) / 2
 	}
 
 	minFuel := 1000000000
