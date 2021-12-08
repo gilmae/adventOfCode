@@ -19,38 +19,40 @@ func main() {
 	}
 	contents := string(bytes)
 	lines := strings.Split(contents, "\n")
+	if *part == "a" {
+		unique_digits := 0
 
-	unique_digits := 0
-
-	for _, line := range lines {
-		parts := strings.Split(line, " | ")
-		for _, output := range strings.Split(parts[1], " ") {
-			if len(output) == 2 || len(output) == 3 || len(output) == 4 || len(output) == 7 {
-				unique_digits++
+		for _, line := range lines {
+			parts := strings.Split(line, " | ")
+			for _, output := range strings.Split(parts[1], " ") {
+				if len(output) == 2 || len(output) == 3 || len(output) == 4 || len(output) == 7 {
+					unique_digits++
+				}
 			}
 		}
-	}
+		fmt.Println(unique_digits)
+	} else {
 
-	result := 0
-	for _, line := range lines {
-		signalsByNumOnBits := make(map[int][]string)
-		parts := strings.Split(line, " | ")
-		for _, output := range strings.Split(parts[0], " ") {
-			if _, ok := signalsByNumOnBits[len(output)]; !ok {
-				signalsByNumOnBits[len(output)] = []string{output}
-			} else {
-				signalsByNumOnBits[len(output)] = append(signalsByNumOnBits[len(output)], output)
+		result := 0
+
+		for _, line := range lines {
+			signalsByNumOnBits := make(map[int][]string)
+			parts := strings.Split(line, " | ")
+			for _, output := range strings.Split(parts[0], " ") {
+				if _, ok := signalsByNumOnBits[len(output)]; !ok {
+					signalsByNumOnBits[len(output)] = []string{output}
+				} else {
+					signalsByNumOnBits[len(output)] = append(signalsByNumOnBits[len(output)], output)
+				}
+
 			}
 
+			deciphered := decipherLine(signalsByNumOnBits)
+			result += decrypt(deciphered, parts[1])
+
 		}
-		deciphered := decipherLine(signalsByNumOnBits)
-		plain := decrypt(deciphered, parts[1])
-		fmt.Println(plain)
-		result += plain
-
+		fmt.Println(result)
 	}
-
-	fmt.Println(result)
 }
 
 func decipherLine(signals map[int][]string) map[rune]rune {
