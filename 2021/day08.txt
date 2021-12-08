@@ -1,0 +1,29 @@
+
+For each line in the input
+1. Create hash of string length to strings of that length in the first portion of that line.
+2. Perform a series of if statements and populate a hash of char => char
+
+Examine the strings that have 3 and 2 segments *which are the 7 and 1 digit respectively). The char (z) that is in the 3 segment string but not in the 2 segment string is the 'a' segment.
+Examine the strings that have 5 segments create a map of how many times each segment appears across all three
+Examine the strings that have 6 segments create a map of how many times each segment appears across all three
+Examine the string that has 4 segments create a map of segments (Dictionary<char,bool> basically) 
+If a segment y appears 3 times in teh 5-segment digits and also appears in the 4 segment digit, it is the 'd' segment
+If a segment x appears 3 times in the 5-segment digits and is in neither the 4-segment digit nor the 3-segment digit, it is the 'g' segment
+If a segment w appears 1 time in the 5-segment digits and is in the 4-segment digit, it is the 'b' segment
+If a segment v appears 1 time in the 5-segment digits and is not in the 4-segment digit, it is the 'e' segment
+If a segment u appears 2 times in the 6-segment digits and is in the 2-digit segment, it is the 'c' segment
+If a segment t appears 3 times in the 6-digit segments and is in the 2-digit segment, it is the 'f' segment
+
+Your hash should then be 
+
+{
+    z=>'a',
+    y=>'d',
+    x=>'g'
+    w=>'b'
+    v=>'e'
+    u=>'c'
+    t=>'f'
+}
+
+From there you should be able to iterate over each string in the second half of the line, map the chars to the correct chars and then match those new strings to the strings that represent each digit.
