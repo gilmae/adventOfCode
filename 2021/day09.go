@@ -6,14 +6,12 @@ import (
 	"io/ioutil"
 	"sort"
 	"strings"
+
+	"github.com/gilmae/adventOfCode/2021/boards"
 )
 
 var inputFile = flag.String("inputFile", "inputs/day09.input", "Relative file path to use as input.")
 var part = flag.String("part", "a", "Which part to solve")
-
-type Coords struct {
-	x, y int
-}
 
 func main() {
 	flag.Parse()
@@ -23,26 +21,23 @@ func main() {
 	}
 	contents := string(bytes)
 	lines := strings.Split(contents, "\n")
-	board := make(map[Coords]int)
-	max := Coords{len(lines[0]) - 1, len(lines) - 1}
+	board := boards.NewBoard()
+
+	board.Import(lines, func(c boards.Coords, ch interface{}) interface{} {
+		return int(ch.(rune) - '0')
+	})
+
+	maxX, maxY := board.Width(), board.Height()
 	lowpoints := make([]int, 0)
 	sizes := make([]int, 0)
 
-	for y, line := range lines {
-
-		for x, p := range line {
-			c := Coords{x, y}
-			board[c] = int(p - '0')
-		}
-	}
-
-	for y := 0; y <= max.y; y++ {
-		for x := 0; x <= max.x; x++ {
-			if checkPoint(board, Coords{x, y}) {
-				lowpoints = append(lowpoints, board[Coords{x, y}])
-				basin := make(map[Coords]bool)
-				basin[Coords{x, y}] = true
-				getBasin(board, Coords{x, y}, basin)
+	for y := 0; y <= maxY; y++ {
+		for x := 0; x <= maxX; x++ {
+			if checkPoint(board, boards.Coords{x, y}) {
+				lowpoints = append(lowpoints, board.Points[boards.Coords{x, y}].(int))
+				basin := make(map[boards.Coords]bool)
+				basin[boards.Coords{x, y}] = true
+				getBasin(board, boards.Coords{x, y}, basin)
 				sizes = append(sizes, len(basin))
 			}
 		}
@@ -59,8 +54,8 @@ func main() {
 
 }
 
-func getNeighbours(board map[Coords]int, c Coords, ignoreDiagonals bool) []Coords {
-	neighbours := make([]Coords, 0)
+func getNeighbours(board *boards.Board, c boards.Coords, ignoreDiagonals bool) []boards.Coords {
+	neighbours := make([]boards.Coords, 0)
 	for j := -1; j < 2; j++ {
 		for i := -1; i < 2; i++ {
 			if i == 0 && j == 0 {
@@ -71,8 +66,8 @@ func getNeighbours(board map[Coords]int, c Coords, ignoreDiagonals bool) []Coord
 				continue
 			}
 
-			p := Coords{c.x + i, c.y + j}
-			if _, ok := board[p]; ok {
+			p := boards.Coords{c.X + i, c.Y + j}
+			if _, ok := board.Points[p]; ok {
 				neighbours = append(neighbours, p)
 			}
 		}
@@ -81,11 +76,12 @@ func getNeighbours(board map[Coords]int, c Coords, ignoreDiagonals bool) []Coord
 	return neighbours
 }
 
-func checkPoint(board map[Coords]int, c Coords) bool {
-	value := board[c]
+func checkPoint(board *boards.Board, c boards.Coords) bool {
+	value := board.Points[c].(int)
 
 	for _, p := range getNeighbours(board, c, false) {
-		if board[p] <= value {
+		v := board.Points[p].(int)
+		if v <= value {
 			return false
 		}
 	}
@@ -93,10 +89,10 @@ func checkPoint(board map[Coords]int, c Coords) bool {
 	return true
 }
 
-func getBasin(board map[Coords]int, c Coords, basin map[Coords]bool) {
-	value := board[c]
+func getBasin(board *boards.Board, c boards.Coords, basin map[boards.Coords]bool) {
+	value := board.Points[c].(int)
 	for _, p := range getNeighbours(board, c, true) {
-		if board[p] > value && board[p] < 9 {
+		if board.Points[p].(int) > value && board.Points[p].(int) < 9 {
 			if _, ok := basin[p]; !ok {
 				basin[p] = true
 				getBasin(board, p, basin)
