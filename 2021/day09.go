@@ -38,7 +38,7 @@ func main() {
 
 	for y := 0; y <= max.y; y++ {
 		for x := 0; x <= max.x; x++ {
-			if checkPoint(board, x, y, max.y, max.x) {
+			if checkPoint(board, Coords{x, y}) {
 				lowpoints = append(lowpoints, board[Coords{x, y}])
 				basin := make(map[Coords]bool)
 				basin[Coords{x, y}] = true
@@ -59,7 +59,7 @@ func main() {
 
 }
 
-func getNeighbours(board map[Coords]int, x, y int, ignoreDiagonals bool) []Coords {
+func getNeighbours(board map[Coords]int, c Coords, ignoreDiagonals bool) []Coords {
 	neighbours := make([]Coords, 0)
 	for j := -1; j < 2; j++ {
 		for i := -1; i < 2; i++ {
@@ -71,7 +71,7 @@ func getNeighbours(board map[Coords]int, x, y int, ignoreDiagonals bool) []Coord
 				continue
 			}
 
-			p := Coords{x + i, y + j}
+			p := Coords{c.x + i, c.y + j}
 			if _, ok := board[p]; ok {
 				neighbours = append(neighbours, p)
 			}
@@ -81,10 +81,10 @@ func getNeighbours(board map[Coords]int, x, y int, ignoreDiagonals bool) []Coord
 	return neighbours
 }
 
-func checkPoint(board map[Coords]int, x, y, height, width int) bool {
-	value := board[Coords{x, y}]
+func checkPoint(board map[Coords]int, c Coords) bool {
+	value := board[c]
 
-	for _, p := range getNeighbours(board, x, y, false) {
+	for _, p := range getNeighbours(board, c, false) {
 		if board[p] <= value {
 			return false
 		}
@@ -93,9 +93,9 @@ func checkPoint(board map[Coords]int, x, y, height, width int) bool {
 	return true
 }
 
-func getBasin(board map[Coords]int, lp Coords, basin map[Coords]bool) {
-	value := board[lp]
-	for _, p := range getNeighbours(board, lp.x, lp.y, true) {
+func getBasin(board map[Coords]int, c Coords, basin map[Coords]bool) {
+	value := board[c]
+	for _, p := range getNeighbours(board, c, true) {
 		if board[p] > value && board[p] < 9 {
 			if _, ok := basin[p]; !ok {
 				basin[p] = true
