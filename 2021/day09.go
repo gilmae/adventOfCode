@@ -83,20 +83,6 @@ func getNeighbours(board map[Coords]int, x, y int, ignoreDiagonals bool) []Coord
 
 func checkPoint(board map[Coords]int, x, y, height, width int) bool {
 	value := board[Coords{x, y}]
-	// for j := -1; j < 2; j++ {
-	// 	for i := -1; i < 2; i++ {
-	// 		if i == 0 && j == 0 {
-	// 			continue
-	// 		}
-	// 		if i+x < 0 || j+y < 0 || i+x > width || j+y > height {
-	// 			continue
-	// 		}
-	// 		p := Coords{x + i, y + j}
-	// 		if board[p] <= value {
-	// 			return false
-	// 		}
-	// 	}
-	// }
 
 	for _, p := range getNeighbours(board, x, y, false) {
 		if board[p] <= value {
