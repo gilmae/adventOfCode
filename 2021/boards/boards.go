@@ -1,5 +1,7 @@
 package boards
 
+import "fmt"
+
 type Coords struct {
 	X, Y int
 }
@@ -51,4 +53,38 @@ func (b *Board) Height() int {
 		}
 	}
 	return maxY
+}
+
+func (b *Board) GetNeighbours(c Coords, ignoreDiagonals bool) []Coords {
+	neighbours := make([]Coords, 0)
+	for j := -1; j < 2; j++ {
+		for i := -1; i < 2; i++ {
+			if i == 0 && j == 0 {
+				continue
+			}
+
+			if ignoreDiagonals && i != 0 && j != 0 {
+				continue
+			}
+
+			p := Coords{c.X + i, c.Y + j}
+			if _, ok := b.Points[p]; ok {
+				neighbours = append(neighbours, p)
+			}
+		}
+	}
+
+	return neighbours
+}
+
+func (b *Board) PrintBoard() {
+	maxX, maxY := b.Width(), b.Height()
+	for y := 0; y <= maxY; y++ {
+		for x := 0; x <= maxX; x++ {
+			c := Coords{x, y}
+			fmt.Printf("%+v", b.Points[c])
+
+		}
+		fmt.Println()
+	}
 }
