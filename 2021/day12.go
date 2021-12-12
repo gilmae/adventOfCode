@@ -12,18 +12,32 @@ var part = flag.String("part", "a", "Which part to solve")
 
 type Exits map[string][]string
 type Path []string
+type PathWithOneRevisit struct {
+	Path    Path
+	revisit string
+}
 
-func (p *Path) mayVisit(cave string) bool {
+func (p *PathWithOneRevisit) mayVisit(cave string) (allowed bool, theRevisit bool) {
 	if cave[0] >= 'A' && cave[0] <= 'Z' {
-		return true
+		return true, false
 	}
-	for _, c := range *p {
+
+	if cave == p.revisit || cave == "start" {
+		return false, false
+	}
+	for _, c := range *&p.Path {
 		if c == cave {
-			return false
+			if p.revisit == "" {
+				// We've been here before, but never revisited a cave before so this is our one revisit
+				return true, true
+			} else {
+				return false, false
+			}
+
 		}
 
 	}
-	return true
+	return true, false
 }
 
 func (p Path) extend(next string) Path {
@@ -51,30 +65,36 @@ func main() {
 		exits[parts[1]] = append(exits[parts[1]], parts[0])
 	}
 
-	possiblePaths := []Path{[]string{"start"}}
+	possiblePaths := []PathWithOneRevisit{
+		{Path: Path{"start"}, revisit: ""},
+	}
 
 	fmt.Println(exits.searchForPaths(possiblePaths))
 }
 
-func (exits Exits) searchForPaths(queue []Path) int {
+func (exits Exits) searchForPaths(queue []PathWithOneRevisit) int {
 	paths := 0
 	for len(queue) != 0 {
-		var nextQueue []Path
+		var nextQueue []PathWithOneRevisit
 		for _, item := range queue {
-
-			last := item[len(item)-1]
+			last := item.Path[len(item.Path)-1]
 			if last == "end" {
-				// This is a unique path that has reached the end.
 				paths++
 				continue
 			}
 			for _, n := range exits[last] {
-				mayVisit := item.mayVisit(n)
+				mayVisit, setRevisit := item.mayVisit(n)
 				if !mayVisit {
 					continue
 				}
-				nextItem := item.extend(n)
+				nextItem := PathWithOneRevisit{
+					Path:    item.Path.extend(n),
+					revisit: item.revisit,
+				}
 
+				if setRevisit {
+					nextItem.revisit = n
+				}
 				nextQueue = append(nextQueue, nextItem)
 			}
 		}
