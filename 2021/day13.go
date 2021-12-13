@@ -62,41 +62,27 @@ func main() {
 
 func fold(line string, board *boards.Board) *boards.Board {
 	foldRx := regexp.MustCompile("fold along (\\w)=(\\d+)")
-
+	newBoard := boards.NewBoard()
 	sm := foldRx.FindStringSubmatch(line)
-	foldPoint, _ := strconv.Atoi(sm[2])
+	v, _ := strconv.Atoi(sm[2])
+	foldPoint := boards.Coords{int(^uint(0) >> 1), int(^uint(0) >> 1)}
 
 	if sm[1] == "y" {
-		return foldy(board, foldPoint)
+		foldPoint.Y = v
 	} else {
-		return foldX(board, foldPoint)
+		foldPoint.X = v
 	}
-}
-
-func foldy(board *boards.Board, foldPoint int) *boards.Board {
-	newBoard := boards.NewBoard()
-	height := board.Height()
 
 	for k, v := range board.Points {
-		if k.Y < foldPoint {
-			newBoard.Points[k] = v
-		} else {
-			newBoard.Points[boards.Coords{k.X, height - k.Y}] = v
+		newK := boards.Coords{k.X, k.Y}
+		if k.Y >= foldPoint.Y {
+			newK.Y = foldPoint.Y - (k.Y - foldPoint.Y)
 		}
-	}
-	return newBoard
-}
 
-func foldX(board *boards.Board, foldPoint int) *boards.Board {
-	newBoard := boards.NewBoard()
-	width := board.Width()
-
-	for k, v := range board.Points {
-		if k.X < foldPoint {
-			newBoard.Points[k] = v
-		} else {
-			newBoard.Points[boards.Coords{width - k.X, k.Y}] = v
+		if k.X >= foldPoint.X {
+			newK.X = foldPoint.X - (k.X - foldPoint.X)
 		}
+		newBoard.Points[newK] = v
 	}
 	return newBoard
 }
