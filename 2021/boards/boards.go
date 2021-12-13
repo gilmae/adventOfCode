@@ -1,17 +1,22 @@
 package boards
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Coords struct {
 	X, Y int
 }
 
 type Board struct {
-	Points map[Coords]interface{}
+	Points      map[Coords]interface{}
+	TopLeft     Coords
+	BottomRight Coords
 }
 
 func NewBoard() *Board {
-	b := Board{make(map[Coords]interface{})}
+	b := Board{make(map[Coords]interface{}), Coords{0, 0}, Coords{0, 0}}
 
 	return &b
 }
@@ -103,6 +108,74 @@ func (board *Board) FoldX(foldPoint int) *Board {
 	return newBoard
 }
 
+// FlipX flips the board on the x axis, so max y becomes min y
+func (b *Board) FlipX() *Board {
+	nb := NewBoard()
+
+	for y := 0; y <= b.BottomRight.Y; y++ {
+		newY := b.BottomRight.Y - y
+		for x := 0; x <= b.BottomRight.X; x++ {
+			if v, ok := b.Points[Coords{x, y}]; ok {
+				nb.Points[Coords{x, newY}] = v
+			}
+		}
+	}
+	nb.TopLeft = b.TopLeft
+	nb.BottomRight = b.BottomRight
+	return nb
+}
+
+// FlipX flips the board on the y axis, so max x becomes min x
+func (b *Board) FlipY() *Board {
+	nb := NewBoard()
+
+	for x := 0; x <= b.BottomRight.X; x++ {
+		newX := b.BottomRight.X - x
+		for y := 0; y <= b.BottomRight.Y; y++ {
+			if v, ok := b.Points[Coords{x, y}]; ok {
+				nb.Points[Coords{newX, y}] = v
+			}
+		}
+	}
+	nb.TopLeft = b.TopLeft
+	nb.BottomRight = b.BottomRight
+	return nb
+}
+
+func (b *Board) RotateClockwise() *Board {
+	nb := NewBoard()
+
+	centre := Coords{(b.BottomRight.X - b.TopLeft.X) / 2, (b.BottomRight.Y - b.TopLeft.Y) / 2}
+	for x := 0; x <= b.BottomRight.X; x++ {
+		for y := 0; y <= b.BottomRight.Y; y++ {
+			p := Coords{x, y}
+			if v, ok := b.Points[p]; ok {
+				nb.Points[rotatePointByDegrees(Coords{x, y}, centre, -90)] = v
+			}
+		}
+	}
+	nb.TopLeft = b.TopLeft
+	nb.BottomRight = b.BottomRight
+	return nb
+}
+
+func (b *Board) RotateCounterClockwise() *Board {
+	nb := NewBoard()
+
+	centre := Coords{(b.BottomRight.X - b.TopLeft.X) / 2, (b.BottomRight.Y - b.TopLeft.Y) / 2}
+	for x := 0; x <= b.BottomRight.X; x++ {
+		for y := 0; y <= b.BottomRight.Y; y++ {
+			p := Coords{x, y}
+			if v, ok := b.Points[p]; ok {
+				nb.Points[rotatePointByDegrees(Coords{x, y}, centre, 90)] = v
+			}
+		}
+	}
+	nb.TopLeft = b.TopLeft
+	nb.BottomRight = b.BottomRight
+	return nb
+}
+
 func (b *Board) PrintBoard() {
 	maxX, maxY := b.Width(), b.Height()
 	for y := 0; y <= maxY; y++ {
@@ -130,4 +203,21 @@ func (b *Board) PrintBoardWithShader(transform transformer) {
 		}
 		fmt.Println()
 	}
+}
+
+var COS90 = 0
+var SIN90 = 1
+
+func rotatePointByDegrees(p Coords, centre Coords, degrees int) Coords {
+	// Things are a little weird, yo. Because the Top LEft is 0,0 and the bottom right is width, height
+	// We actually have to flip the degrees and make clockwise *counter* clockwise
+	radians := float64(degrees*-1) * (math.Pi / 180)
+	cos := math.Cos(radians)
+	sin := math.Sin(radians)
+
+	dx := int(float64(centre.X) + float64(p.X-centre.X)*cos - float64(p.Y-centre.Y)*sin)
+	dy := int(float64(centre.Y) + float64(p.X-centre.X)*sin + float64(p.Y-centre.Y)*cos)
+
+	return Coords{dx, dy}
+
 }
