@@ -51,7 +51,13 @@ func main() {
 		board = fold(lines[i], board)
 	}
 
-	drawBoard(board)
+	board.PrintBoardWithShader(func(c boards.Coords, v interface{}) interface{} {
+		if v == nil || !v.(bool) {
+			return fmt.Sprint(" ")
+		} else {
+			return fmt.Sprint("#")
+		}
+	})
 }
 
 func fold(line string, board *boards.Board) *boards.Board {
@@ -93,22 +99,4 @@ func foldX(board *boards.Board, foldPoint int) *boards.Board {
 		}
 	}
 	return newBoard
-}
-
-func drawBoard(board *boards.Board) {
-	width := board.Width()
-	height := board.Height()
-
-	for y := 0; y <= height; y++ {
-		for x := 0; x <= width; x++ {
-
-			if _, ok := board.Points[boards.Coords{x, y}]; !ok {
-				fmt.Print(" ")
-			} else {
-				fmt.Print("#")
-			}
-
-		}
-		fmt.Println()
-	}
 }

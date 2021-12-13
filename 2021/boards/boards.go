@@ -88,3 +88,20 @@ func (b *Board) PrintBoard() {
 		fmt.Println()
 	}
 }
+
+func (b *Board) PrintBoardWithShader(transform transformer) {
+	if transform == nil {
+		transform = func(c Coords, value interface{}) interface{} {
+			return fmt.Sprintf("%+v", value)
+		}
+	}
+	maxX, maxY := b.Width(), b.Height()
+	for y := 0; y <= maxY; y++ {
+		for x := 0; x <= maxX; x++ {
+			c := Coords{x, y}
+			fmt.Printf("%+v", transform(c, b.Points[c]))
+
+		}
+		fmt.Println()
+	}
+}
