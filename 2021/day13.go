@@ -62,27 +62,12 @@ func main() {
 
 func fold(line string, board *boards.Board) *boards.Board {
 	foldRx := regexp.MustCompile("fold along (\\w)=(\\d+)")
-	newBoard := boards.NewBoard()
 	sm := foldRx.FindStringSubmatch(line)
-	v, _ := strconv.Atoi(sm[2])
-	foldPoint := boards.Coords{int(^uint(0) >> 1), int(^uint(0) >> 1)}
+	foldPoint, _ := strconv.Atoi(sm[2])
 
 	if sm[1] == "y" {
-		foldPoint.Y = v
+		return board.FoldY(foldPoint)
 	} else {
-		foldPoint.X = v
+		return board.FoldX(foldPoint)
 	}
-
-	for k, v := range board.Points {
-		newK := boards.Coords{k.X, k.Y}
-		if k.Y >= foldPoint.Y {
-			newK.Y = foldPoint.Y - (k.Y - foldPoint.Y)
-		}
-
-		if k.X >= foldPoint.X {
-			newK.X = foldPoint.X - (k.X - foldPoint.X)
-		}
-		newBoard.Points[newK] = v
-	}
-	return newBoard
 }

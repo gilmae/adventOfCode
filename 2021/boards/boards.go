@@ -77,6 +77,32 @@ func (b *Board) GetNeighbours(c Coords, ignoreDiagonals bool) []Coords {
 	return neighbours
 }
 
+func (board *Board) FoldY(foldPoint int) *Board {
+	newBoard := NewBoard()
+
+	for k, v := range board.Points {
+		if k.Y >= foldPoint {
+			newBoard.Points[Coords{k.X, foldPoint - (k.Y - foldPoint)}] = v
+		} else {
+			newBoard.Points[k] = v
+		}
+	}
+	return newBoard
+}
+
+func (board *Board) FoldX(foldPoint int) *Board {
+	newBoard := NewBoard()
+
+	for k, v := range board.Points {
+		if k.X >= foldPoint {
+			newBoard.Points[Coords{foldPoint - (k.X - foldPoint), k.Y}] = v
+		} else {
+			newBoard.Points[k] = v
+		}
+	}
+	return newBoard
+}
+
 func (b *Board) PrintBoard() {
 	maxX, maxY := b.Width(), b.Height()
 	for y := 0; y <= maxY; y++ {
