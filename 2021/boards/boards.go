@@ -25,9 +25,7 @@ type transformer func(c Coords, value interface{}) interface{}
 
 func (b *Board) Import(lines []string, transform transformer) {
 	if transform == nil {
-		transform = func(c Coords, value interface{}) interface{} {
-			return value
-		}
+		transform = defaultTransform
 	}
 	for y, line := range lines {
 		for x, ch := range line {
@@ -177,15 +175,7 @@ func (b *Board) RotateCounterClockwise() *Board {
 }
 
 func (b *Board) PrintBoard() {
-	maxX, maxY := b.Width(), b.Height()
-	for y := 0; y <= maxY; y++ {
-		for x := 0; x <= maxX; x++ {
-			c := Coords{x, y}
-			fmt.Printf("%+v", b.Points[c])
-
-		}
-		fmt.Println()
-	}
+	b.PrintBoardWithShader(defaultShader)
 }
 
 func (b *Board) PrintBoardWithShader(transform transformer) {
@@ -205,8 +195,24 @@ func (b *Board) PrintBoardWithShader(transform transformer) {
 	}
 }
 
-var COS90 = 0
-var SIN90 = 1
+func defaultTransform(c Coords, value interface{}) interface{} {
+	return value
+}
+
+func defaultShader(c Coords, v interface{}) interface{} {
+	switch v := v.(type) {
+	case nil:
+		return " "
+	case bool:
+		if !v {
+			return "."
+		} else {
+			return "#"
+		}
+	default:
+		return fmt.Sprintf("%+v", v)
+	}
+}
 
 func rotatePointByDegrees(p Coords, centre Coords, degrees int) Coords {
 	// Things are a little weird, yo. Because the Top LEft is 0,0 and the bottom right is width, height
