@@ -1,0 +1,22 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"io/ioutil"
+	"strconv"
+	"strings"
+)
+
+var inputFile = flag.String("inputFile", "inputs/day02.input", "Relative file path to use as input.")
+var part = flag.String("part", "a", "Which part to solve")
+
+func main() {
+	flag.Parse()
+	bytes, err := ioutil.ReadFile(*inputFile)
+	if err != nil {
+		return
+	}
+	contents := string(bytes)
+	lines := strings.Split(contents, "\n")
+}
