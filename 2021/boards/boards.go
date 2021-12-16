@@ -9,6 +9,10 @@ type Coords struct {
 	X, Y int
 }
 
+func (start *Coords) ManhattanDistance(end *Coords) int {
+	return int(math.Abs(float64(end.X-start.X)) + math.Abs(float64(end.Y-start.Y)))
+}
+
 type Board struct {
 	Points      map[Coords]interface{}
 	TopLeft     Coords
