@@ -27,34 +27,36 @@ func main() {
 		return int(value.(int32) - '0')
 	})
 
+	start := boards.Coords{0, 0}
 	width := cave.Width()
 	height := cave.Height()
+	if *part == "a" {
 
-	cave.BottomRight = boards.Coords{width, height}
-	destination := boards.Coords{width, height}
-	start := boards.Coords{0, 0}
+		cave.BottomRight = boards.Coords{width, height}
+		destination := boards.Coords{width, height}
 
-	AStarCave(cave, &start, &destination)
+		AStarCave(cave, &start, &destination)
 
-	fmt.Println(AStarCave(cave, &start, &destination))
-
-	biggerCave := boards.NewBoard()
-	for k, v := range cave.Points {
-		for r := 0; r < 5; r++ {
-			for c := 0; c < 5; c++ {
-				increase := r + c
-				value := 1 + (v.(int)+increase-1)%9
-				biggerCave.Points[boards.Coords{k.X + r*(width+1), k.Y + c*(height+1)}] = value
+		fmt.Println(AStarCave(cave, &start, &destination))
+	} else {
+		biggerCave := boards.NewBoard()
+		for k, v := range cave.Points {
+			for r := 0; r < 5; r++ {
+				for c := 0; c < 5; c++ {
+					increase := r + c
+					value := 1 + (v.(int)+increase-1)%9
+					biggerCave.Points[boards.Coords{k.X + r*(width+1), k.Y + c*(height+1)}] = value
+				}
 			}
 		}
+
+		width = biggerCave.Width()
+		height = biggerCave.Height()
+
+		destination := boards.Coords{width, height}
+
+		fmt.Println(AStarCave(biggerCave, &start, &destination))
 	}
-
-	width = biggerCave.Width()
-	height = biggerCave.Height()
-
-	destination = boards.Coords{width, height}
-
-	fmt.Println(AStarCave(biggerCave, &start, &destination))
 }
 
 func AStarCave(risks *boards.Board, src, dst *boards.Coords) int {
