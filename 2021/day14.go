@@ -71,7 +71,7 @@ func applyRules(poly polymer) polymer {
 }
 
 func getFrequencies(poly polymer) int {
-	elements := make(map[biyte]int)
+	elements := make(map[byte]int)
 	for p, c := range poly.pairs {
 		elements[p.left] += c
 		elements[p.right] += c
