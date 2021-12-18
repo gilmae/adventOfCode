@@ -11,6 +11,7 @@ import (
 
 var inputFile = flag.String("inputFile", "inputs/day18.input", "Relative file path to use as input.")
 var part = flag.String("part", "a", "Which part to solve")
+var debug = flag.Bool("debug", false, "Show debug messages")
 
 func main() {
 	flag.Parse()
@@ -37,24 +38,25 @@ func main() {
 	}
 
 	fmt.Println(sum.Magnitude())
+	if *part == "b" {
+		largestMagnitude := 0
+		for i, _ := range lines {
+			for j, _ := range lines {
+				if i == j {
+					continue
+				}
+				a := parser.Parse([]byte(lines[i]))
 
-	largestMagnitude := 0
-	for i, _ := range lines {
-		for j, _ := range lines {
-			if i == j {
-				continue
-			}
-			a := parser.Parse([]byte(lines[i]))
+				b := parser.Parse([]byte(lines[j]))
 
-			b := parser.Parse([]byte(lines[j]))
-
-			magnitude := Sum(a, b).Magnitude()
-			if magnitude > largestMagnitude {
-				largestMagnitude = magnitude
+				magnitude := Sum(a, b).Magnitude()
+				if magnitude > largestMagnitude {
+					largestMagnitude = magnitude
+				}
 			}
 		}
+		fmt.Println(largestMagnitude)
 	}
-	fmt.Println(largestMagnitude)
 
 }
 
@@ -70,9 +72,9 @@ func Sum(a, b *SnailfishNumber) *SnailfishNumber {
 	pair.LeftPair.Parent = &pair
 	pair.RightPair.IncrementDepth()
 	pair.RightPair.Parent = &pair
-	//if *debug {
-	//	fmt.Printf("After add:\t\t%s\n", pair)
-	//}
+	if *debug {
+		fmt.Printf("After add:\t\t%s\n", pair)
+	}
 	pair.Reduce()
 	return &pair
 }
@@ -80,17 +82,18 @@ func Sum(a, b *SnailfishNumber) *SnailfishNumber {
 func (p *SnailfishNumber) Reduce() {
 	for {
 		if exploded := p.explode(); exploded {
-			//if *debug {
-			//	fmt.Printf("After explode:\t\t%s\n", p)
-			//}
+			if *debug {
+				fmt.Printf("After explode:\t\t%s\n", p)
+			}
 			continue
 		}
 		if split := p.split(); !split {
 			break
 		} else {
-			//if *debug {
-			//	fmt.Printf("After split:\t\t%s\n", p)
-			//}
+			if *debug {
+				fmt.Printf("After split:\t\t%s\n", p)
+			}
+
 		}
 
 	}

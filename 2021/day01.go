@@ -10,6 +10,7 @@ import (
 
 var inputFile = flag.String("inputFile", "inputs/day01.input", "Relative file path to use as input.")
 var part = flag.String("part", "a", "Which part to solve")
+var debug = flag.Bool("debug", false, "Show debug messages")
 
 func main() {
 	flag.Parse()
