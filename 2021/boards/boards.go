@@ -13,6 +13,22 @@ func (start *Coords) ManhattanDistance(end *Coords) int {
 	return int(math.Abs(float64(end.X-start.X)) + math.Abs(float64(end.Y-start.Y)))
 }
 
+func (c *Coords) GetNeighbours(depth int, includeSelf bool) []Coords {
+	neighbours := make([]Coords, 9)
+	n := 0
+	for i := depth * -1; i <= depth; i++ {
+		for j := depth * -1; j <= depth; j++ {
+			if !includeSelf && i == 0 && j == 0 {
+				continue
+			}
+			neighbours[n] = Coords{c.X + j, c.Y + i}
+			n++
+		}
+	}
+
+	return neighbours
+}
+
 type Board struct {
 	Points      map[Coords]interface{}
 	TopLeft     Coords
@@ -188,12 +204,15 @@ func (b *Board) PrintBoardWithShader(transform transformer) {
 			return fmt.Sprintf("%+v", value)
 		}
 	}
-	maxX, maxY := b.Width(), b.Height()
-	for y := 0; y <= maxY; y++ {
-		for x := 0; x <= maxX; x++ {
+
+	minX, minY := b.TopCorner()
+	maxX, maxY := b.BottomCorner()
+
+	for y := minY - 1; y <= maxY+1; y++ {
+		for x := minX - 1; x <= maxX+1; x++ {
+
 			c := Coords{x, y}
 			fmt.Printf("%+v", transform(c, b.Points[c]))
-
 		}
 		fmt.Println()
 	}
@@ -209,7 +228,7 @@ func defaultShader(c Coords, v interface{}) interface{} {
 		return " "
 	case bool:
 		if !v {
-			return "."
+			return " "
 		} else {
 			return "#"
 		}
@@ -230,4 +249,38 @@ func rotatePointByDegrees(p Coords, centre Coords, degrees int) Coords {
 
 	return Coords{dx, dy}
 
+}
+
+func (b *Board) TopCorner() (int, int) {
+	minX := int(^uint(0)>>1) - 1
+	minY := int(^uint(0)>>1) - 1
+
+	for k, _ := range b.Points {
+
+		if k.X < minX {
+			minX = k.X
+		}
+
+		if k.Y < minY {
+			minY = k.Y
+		}
+	}
+	return minX, minY
+}
+
+func (b *Board) BottomCorner() (int, int) {
+	maxX := -1*int(^uint(0)>>1) - 1
+	maxY := -1*int(^uint(0)>>1) - 1
+
+	for k, _ := range b.Points {
+
+		if k.X > maxX {
+			maxX = k.X
+		}
+
+		if k.Y > maxY {
+			maxY = k.Y
+		}
+	}
+	return maxX, maxY
 }
