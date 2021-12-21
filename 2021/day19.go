@@ -12,6 +12,7 @@ import (
 
 var inputFile = flag.String("inputFile", "inputs/day19.input", "Relative file path to use as input.")
 var part = flag.String("part", "a", "Which part to solve")
+var debug = flag.Bool("debug", false, "Show debug messages")
 
 type Pair [2]int
 type MatchedPair struct {
@@ -153,8 +154,9 @@ normalise:
 			if unaligned.facing != nil && unaligned.position != nil {
 				continue
 			}
-
-			fmt.Printf("Aligning scanner %d\n", scanNum)
+			if *debug {
+				fmt.Printf("Aligning scanner %d\n", scanNum)
+			}
 
 			for alignNum, aligned := range scanners {
 
@@ -162,8 +164,9 @@ normalise:
 					continue
 				}
 
-				fmt.Printf("Attempt to align scanner %d with scanner %d\n", scanNum, alignNum)
-
+				if *debug {
+					fmt.Printf("Attempt to align scanner %d with scanner %d\n", scanNum, alignNum)
+				}
 				deltasMatched := make(map[Facing][]MatchedPair)
 				for d, p := range aligned.deltas {
 					for _, facing := range allFacings {
@@ -255,8 +258,9 @@ normalise:
 					}
 
 					unaligned.position = &position
-					fmt.Printf("Aligned scanner %d with scnner %d\n", scanNum, alignNum)
-
+					if *debug {
+						fmt.Printf("Aligned scanner %d with scnner %d\n", scanNum, alignNum)
+					}
 					continue normalise
 
 				}
@@ -268,16 +272,34 @@ normalise:
 
 	for scanNum, scanner := range scanners {
 		if scanner.facing != nil && scanner.position != nil {
-			fmt.Printf("Scanner %d aligned and at position %+v\n", scanNum, scanner.position)
+			if *debug {
+				fmt.Printf("Scanner %d aligned and at position %+v\n", scanNum, scanner.position)
+			}
 			for _, b := range scanner.ActualPositions() {
 				beacons[b] = true
 			}
 		} else {
-			fmt.Printf("Scanner %d is still unaligned.\n", scanNum)
+			if *debug {
+				fmt.Printf("Scanner %d is still unaligned.\n", scanNum)
+			}
 		}
 	}
 
 	fmt.Println(len(beacons))
+	largestDistance := 0
+	for i, a := range scanners {
+		for j, b := range scanners {
+			if i == j {
+				continue
+			}
+			distance := a.position.ManhattanDistance(b.position)
+			if distance > largestDistance {
+				largestDistance = distance
+			}
+		}
+	}
+
+	fmt.Println(largestDistance)
 
 }
 

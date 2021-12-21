@@ -1,7 +1,13 @@
 package vector
 
+import "math"
+
 type Coords3d struct {
 	X, Y, Z int
+}
+
+func (start *Coords3d) ManhattanDistance(end *Coords3d) int {
+	return int(math.Abs(float64(end.X-start.X)) + math.Abs(float64(end.Y-start.Y)) + math.Abs(float64(end.Z-start.Z)))
 }
 
 func (c Coords3d) Difference(dest Coords3d) Coords3d {
