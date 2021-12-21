@@ -141,6 +141,13 @@ func main() {
 	scanners[0].facing = &allFacings[0] // The identity facing :-)
 
 normalise:
+	// Iterate through unnormalised scanners (ones that do not have a position and facing)
+	// 		Iterate through all normalised scanners (ones that have a position and a facing)
+	// 			Iterate through the unnormalised scanner's deltas
+	// 				Iterate through each of the facings
+	// 					Iterate through normalised scanners deltas, map them with the facing. If deltas match, add to a matched list
+	// 					If enough matches are found, this facing is the correct one. Normalise the unnormalised scanner
+	//					Then restart all the loops again
 	for {
 		for scanNum, unaligned := range scanners {
 			if unaligned.facing != nil && unaligned.position != nil {
@@ -250,12 +257,6 @@ normalise:
 					unaligned.position = &position
 					fmt.Printf("Aligned scanner %d with scnner %d\n", scanNum, alignNum)
 
-					if unaligned.position != nil && unaligned.facing != nil {
-						for _, b := range unaligned.ActualPositions() {
-							beacons[b] = true
-						}
-					}
-
 					continue normalise
 
 				}
@@ -265,26 +266,20 @@ normalise:
 		break
 	}
 
-	// Iterate through unnormalised scanners (ones that do not have a position and facing)
-	// 		Iterate through all normalised scanners (ones that have a position and a facing)
-	// 			Iterate through the unnormalised scanner's deltas
-	// 				Iterate through each of the facings
-	// 					Iterate through normalised scanners deltas, map them with the facing. If deltas match, add to a matched list
-	// 					If enough matches are found, this facing is the correct one. Normalise the unnormalised scanner
-
-	// for k, _ := range beacons {
-	// 	fmt.Println(k)
-	// }
-
-	fmt.Println(len(beacons))
-
-	for scanNum, unaligned := range scanners {
-		if unaligned.facing != nil && unaligned.position != nil {
-			fmt.Printf("Scanner %d aligned and at position %+v\n", scanNum, unaligned.position)
+	for scanNum, scanner := range scanners {
+		if scanner.facing != nil && scanner.position != nil {
+			fmt.Printf("Scanner %d aligned and at position %+v\n", scanNum, scanner.position)
+			for _, b := range scanner.ActualPositions() {
+				beacons[b] = true
+			}
 		} else {
 			fmt.Printf("Scanner %d is still unaligned.\n", scanNum)
 		}
 	}
+
+	fmt.Println(len(beacons))
+
 }
 
 // Guess 1: 329
+// Guess 2: 342 (this time the sample data had the correct answer)
