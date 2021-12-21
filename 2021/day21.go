@@ -12,6 +12,19 @@ type Player struct {
 	Position, Score int
 }
 
+type d100 struct {
+	Value int
+}
+
+func (d *d100) Roll() int {
+	result := d.Value
+	d.Value++
+	if d.Value == 101 {
+		d.Value = 1
+	}
+	return result
+}
+
 var inputFile = flag.String("inputFile", "inputs/day21.input", "Relative file path to use as input.")
 var part = flag.String("part", "a", "Which part to solve")
 
@@ -29,30 +42,28 @@ func main() {
 	p2 := Player{0, 0}
 	p2.Position, _ = strconv.Atoi(strings.Split(lines[1], ": ")[1])
 
-	die := 0
-	rolls := 0
-	won := false
+	if *part == "a" {
+		die := d100{1}
+		rolls := 0
+		won := false
 
-	for {
-		won = p1.TakeTurn(die*3 + 6)
-		die += 2
-		die = (die % 100) + 1
-		rolls += 3
-		if won {
-			fmt.Printf("Player 1 won on %d after %d rolls", p2.Score*rolls, rolls)
-			break
+		for {
+			won = p1.TakeTurn(die.Roll() + die.Roll() + die.Roll())
+			rolls += 3
+			if won {
+				fmt.Printf("Player 1 won on %d after %d rolls\n", p2.Score*rolls, rolls)
+				break
+			}
+
+			won = p2.TakeTurn(die.Roll() + die.Roll() + die.Roll())
+
+			rolls += 3
+			if won {
+				fmt.Printf("Player 2 won on %d after %d rolls\n", p1.Score*rolls, rolls)
+				break
+			}
+
 		}
-
-		won = p2.TakeTurn(die*3 + 6)
-		die += 2
-		die = (die % 100) + 1
-
-		rolls += 3
-		if won {
-			fmt.Printf("Player 2 won on %d after %d rolls", p1.Score*rolls, rolls)
-			break
-		}
-
 	}
 
 }
@@ -63,12 +74,4 @@ func (p *Player) TakeTurn(roll int) bool {
 	p.Score += p.Position
 
 	return p.Score >= 1000
-}
-
-func Roll(die int) int {
-	nd := die + 1
-	if nd > 100 {
-		nd = nd % 100
-	}
-	return nd
 }
