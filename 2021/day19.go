@@ -195,7 +195,10 @@ normalise:
 					unaligned.facing = &mapped
 					pair := pairs[0]
 
-					// Theory u[0] is b[0] and u[1] = b[1] and a[0] = b[0] and a[1] is b[1]
+					// Theory u[0] is the vector from u origin to b[0]
+					// and u[1] is the vector from u origin to b[1]
+					// and a[0] is the vector from a origin to b[0]
+					// and a[1] is the vector from a origin to b[1]
 					/*
 						If true
 
