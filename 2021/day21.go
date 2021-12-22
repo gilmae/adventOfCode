@@ -78,7 +78,7 @@ func main() {
 		}
 	} else if *part == "b" {
 		cache := make(map[string][2]int64)
-		p1wins, p2wins := playDiracDice([2]int{0, 0}, [2]int{p1.Position, p2.Position}, 3, true, cache)
+		p1wins, p2wins := playDiracDice([2]int{0, 0}, [2]int{p1.Position, p2.Position}, 3, 0, cache)
 
 		if p1wins > p2wins {
 			fmt.Println(p1wins)
@@ -96,36 +96,29 @@ func (p *Player) TakeTurn(roll int) bool {
 	return p.Score >= 1000
 }
 
-func playDiracDice(playerScores [2]int, playerPositions [2]int, rollsLeftForPlayer int, player1Turn bool, cache map[string][2]int64) (int64, int64) {
+func playDiracDice(playerScores [2]int, playerPositions [2]int, rollsLeftForPlayer int, player int, cache map[string][2]int64) (int64, int64) {
 	player1Wins, player2Wins := int64(0), int64(0)
 
 	// Have we been here before?
-	key := fmt.Sprint(playerScores, playerPositions, rollsLeftForPlayer, player1Turn)
+	key := fmt.Sprint(playerScores, playerPositions, rollsLeftForPlayer, player)
 	if v, ok := cache[key]; ok {
 		return v[0], v[1]
 	}
 
 	// Check if the current player has won
-	var player int
-	if player1Turn {
-		player = 0
-	} else {
-		player = 1
-	}
 
 	newScores := [2]int{playerScores[0], playerScores[1]}
 	if rollsLeftForPlayer == 0 {
 		// No more rolls of the dice, check their score
 		newScores[player] += playerPositions[player]
 		if newScores[player] >= 21 {
-			if player1Turn {
+			if player == 0 {
 				return 1, 0
 			} else {
 				return 0, 1
 			}
 		}
 
-		player1Turn = !player1Turn
 		rollsLeftForPlayer = 3
 		player = (player + 1) % 2
 	}
@@ -137,7 +130,7 @@ func playDiracDice(playerScores [2]int, playerPositions [2]int, rollsLeftForPlay
 			newPositions[player] -= 10
 		}
 
-		p1w, p2w := playDiracDice(newScores, newPositions, rollsLeftForPlayer-1, player1Turn, cache)
+		p1w, p2w := playDiracDice(newScores, newPositions, rollsLeftForPlayer-1, player, cache)
 		player1Wins += p1w
 		player2Wins += p2w
 	}
