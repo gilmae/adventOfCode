@@ -33,9 +33,11 @@ func main() {
 	lines := strings.Split(contents, "\n")
 	spot := Coords{0, 0}
 	facing := 0
+	seen := make(map[Coords]int)
+	var hasRepeated bool
+	var repeat Coords
 
 	for _, step := range strings.Split(lines[0], ", ") {
-		//fmt.Printf("Facing %d at %d,%d, next command is %s\n", facing, n, e, step)
 		switch step[0] {
 		case 'L':
 			facing = (facing - 1) % 4
@@ -49,17 +51,32 @@ func main() {
 			facing = facing + 4
 		}
 		steps, _ := strconv.Atoi(step[1:])
-		switch facing {
-		case 0:
-			spot.y += steps
-		case 1:
-			spot.x += steps
-		case 3:
-			spot.x -= steps
-		case 2:
-			spot.y -= steps
+		for s := 0; s < steps; s++ {
+			switch facing {
+			case 0:
+				spot = Coords{spot.x, spot.y + 1}
+
+			case 1:
+				spot = Coords{spot.x + 1, spot.y}
+
+			case 3:
+				spot = Coords{spot.x - 1, spot.y}
+
+			case 2:
+				spot = Coords{spot.x, spot.y - 1}
+
+			}
+			seen[spot] += 1
+			if v, ok := seen[spot]; ok && v > 1 && !hasRepeated {
+				hasRepeated = true
+				repeat = spot
+
+			}
 		}
+
 	}
 
 	fmt.Println((math.Abs(float64(spot.x)) + math.Abs(float64(spot.y))))
+	fmt.Println("First repeat: ", repeat, (math.Abs(float64(repeat.x)) + math.Abs(float64(repeat.y))))
+
 }
