@@ -77,7 +77,7 @@ func main() {
 		}
 
 		fmt.Println(count)
-	} else {
+	} else if *part == "b" {
 		reactor := make(map[Prism]bool)
 
 		count := uint64(0)
@@ -97,7 +97,10 @@ func main() {
 			prism := Prism{Coords3d{xmin, ymin, zmin}, Coords3d{xmax, ymax, zmax}}
 
 			// Find any existing prisms that this one overlaps with
-			// Subtract the overlap (i.e. return rectabngular prisms that )
+			// If any, delete those original prisms
+			// Subtract the overlap from the original, getting back an array of prisms that are the original prism exploded into multiple
+			// Add *those* prisms back into the reactor
+			// And then add the new prism in if it is set to On
 			for p, state := range reactor {
 				overlap := p.overlap(prism)
 				if overlap != nil {
@@ -121,6 +124,14 @@ func main() {
 		}
 
 		fmt.Println(count)
+
+	} else if *part == "c" {
+		p1 := Prism{Coords3d{1, 1, 1}, Coords3d{3, 3, 3}}
+		p2 := Prism{Coords3d{2, 2, 2}, Coords3d{2, 2, 2}}
+		o := p1.overlap(p2)
+		ex := p1.Explode(*o)
+		fmt.Println(ex)
+		fmt.Println(o)
 
 	}
 }
