@@ -154,6 +154,12 @@ func (b Burrow) hasOpenPath(mob amphipod, from, to int) bool {
 		}
 	}
 
+	if to == 0 && b[to].spots[0] != Free {
+		return false
+	}
+	if to == 8 && b[to].spots[0] != Free {
+		return false
+	}
 	return true
 }
 
@@ -285,11 +291,9 @@ func main() {
 	burrow[7].spots[1] = A
 
 	homeRooms = map[amphipod]int{A: 1, B: 3, C: 5, D: 7}
-	burrow.Print()
 	EmptyMove = move{burrow: burrow.key(), cost: 0}
 	score := AStarBurrow(EmptyMove)
 	fmt.Println(score)
-	fmt.Println(GetAllValidMoves(burrow))
 }
 
 func AllHome(b Burrow, homeRooms map[amphipod]int) bool {
@@ -433,22 +437,21 @@ func AStarBurrow(src move) int {
 				fmt.Println()
 			}
 			return score
-		} else {
-			validMoves := GetAllValidMoves(burrow)
-			// if len(validMoves) == 0 {
-			// 	burrow.Print()
-			// }
-			for _, n := range validMoves {
-				tentativeScore := gScore[current] + n.cost
-				if previousScore, ok := gScore[n]; !ok || tentativeScore < previousScore {
-					path[n] = current
-					gScore[n] = tentativeScore
-					fScore[n] = tentativeScore + burrow.MinCostToAllHome(homeRooms)
-					if pos := work.Position(n); pos == -1 {
-						heap.Push(&work, n)
-					} else {
-						heap.Fix(&work, pos)
-					}
+		}
+		validMoves := GetAllValidMoves(burrow)
+		// if len(validMoves) == 0 {
+		// 	burrow.Print()
+		// }
+		for _, n := range validMoves {
+			tentativeScore := gScore[current] + n.cost
+			if previousScore, ok := gScore[n]; !ok || tentativeScore < previousScore {
+				path[n] = current
+				gScore[n] = tentativeScore
+				fScore[n] = tentativeScore + burrow.applyMove(n).MinCostToAllHome(homeRooms)
+				if pos := work.Position(n); pos == -1 {
+					heap.Push(&work, n)
+				} else {
+					heap.Fix(&work, pos)
 				}
 			}
 		}
