@@ -11,6 +11,7 @@ import (
 
 var inputFile = flag.String("inputFile", "inputs/day02.input", "Relative file path to use as input.")
 var part = flag.String("part", "a", "Which part to solve")
+var debug = flag.Bool("debug", false, "Show debug messages")
 
 type move struct {
 	from, fromSlot, to, toSlot int
@@ -119,7 +120,9 @@ func (b Burrow) Print() {
 	// Print Home Rooms Line 1
 
 	fmt.Printf("###%s#%s#%s#%s###\n", b[1].spots[0], b[3].spots[0], b[5].spots[0], b[7].spots[0])
-	fmt.Printf("  #%s#%s#%s#%s#  \n", b[1].spots[1], b[3].spots[1], b[5].spots[1], b[7].spots[1])
+	for i := 1; i < len(b[1].spots); i++ {
+		fmt.Printf("  #%s#%s#%s#%s#  \n", b[1].spots[i], b[3].spots[i], b[5].spots[i], b[7].spots[i])
+	}
 	fmt.Println("  #########  ")
 }
 
@@ -206,18 +209,18 @@ func (b Burrow) MinCostToAllHome(homeRooms map[amphipod]int) int {
 	return cost
 }
 
-func NewBurrow() Burrow {
+func NewBurrow(homeSize int) Burrow {
 	burrow := Burrow{}
 	burrow[0] = Room{habitat: Free, spots: make([]amphipod, 2)}
 
-	burrow[1] = Room{habitat: A, spots: make([]amphipod, 2)}
+	burrow[1] = Room{habitat: A, spots: make([]amphipod, homeSize)}
 	burrow[2] = Room{habitat: Free, spots: make([]amphipod, 1)}
-	burrow[3] = Room{habitat: B, spots: make([]amphipod, 2)}
+	burrow[3] = Room{habitat: B, spots: make([]amphipod, homeSize)}
 	burrow[4] = Room{habitat: Free, spots: make([]amphipod, 1)}
 
-	burrow[5] = Room{habitat: C, spots: make([]amphipod, 2)}
+	burrow[5] = Room{habitat: C, spots: make([]amphipod, homeSize)}
 	burrow[6] = Room{habitat: Free, spots: make([]amphipod, 1)}
-	burrow[7] = Room{habitat: D, spots: make([]amphipod, 2)}
+	burrow[7] = Room{habitat: D, spots: make([]amphipod, homeSize)}
 
 	burrow[8] = Room{habitat: Free, spots: make([]amphipod, 2)}
 
@@ -225,10 +228,11 @@ func NewBurrow() Burrow {
 }
 
 func CreateBurrowFromKey(key string) Burrow {
+	parts := strings.Split(key, "--")
+	homeRoomSize, _ := strconv.Atoi(parts[0])
+	resp := NewBurrow(homeRoomSize)
 
-	resp := NewBurrow()
-
-	for _, mobKey := range strings.Split(key, "::") {
+	for _, mobKey := range strings.Split(parts[1], "::") {
 		parts := strings.Split(mobKey, ":")
 
 		room, _ := strconv.Atoi(parts[1])
@@ -241,7 +245,9 @@ func CreateBurrowFromKey(key string) Burrow {
 }
 
 func (b Burrow) key() string {
-	keys := make([]string, 8)
+	homeRoomSize := len(b[1].spots)
+	keys := make([]string, homeRoomSize*len(homeRooms))
+
 	i := 0
 	for amphipod, _ := range homeRooms {
 		for roomNum, room := range b {
@@ -253,7 +259,7 @@ func (b Burrow) key() string {
 			}
 		}
 	}
-	return strings.Join(keys, "::")
+	return fmt.Sprintf("%d--%s", homeRoomSize, strings.Join(keys, "::"))
 }
 
 const (
@@ -277,18 +283,26 @@ func main() {
 	// contents := string(bytes)
 	// lines := strings.Split(contents, "\n")
 
-	burrow = NewBurrow()
+	burrow = NewBurrow(4)
 	burrow[1].spots[0] = D
 	burrow[1].spots[1] = D
+	burrow[1].spots[2] = D
+	burrow[1].spots[3] = D
 
 	burrow[3].spots[0] = B
-	burrow[3].spots[1] = A
+	burrow[3].spots[1] = C
+	burrow[3].spots[2] = B
+	burrow[3].spots[3] = A
 
 	burrow[5].spots[0] = C
 	burrow[5].spots[1] = B
+	burrow[5].spots[2] = A
+	burrow[5].spots[3] = B
 
 	burrow[7].spots[0] = C
 	burrow[7].spots[1] = A
+	burrow[7].spots[2] = C
+	burrow[7].spots[3] = A
 
 	homeRooms = map[amphipod]int{A: 1, B: 3, C: 5, D: 7}
 	EmptyMove = move{burrow: burrow.key(), cost: 0}
@@ -328,9 +342,7 @@ func (b Burrow) validDestinations(room int, slot int) []move {
 	if slot > 0 && burrow[room].spots[slot-1] != Free {
 		return destinations // Blocked from moving by mob in front
 	}
-	// if burrow[room].freeSpot() != slot-1 {
-	// 	return destinations
-	// }
+
 	if burrow[room].habitat == mob && burrow[room].isFree(mob) { // mob is home
 		return destinations
 	}
@@ -413,28 +425,30 @@ func AStarBurrow(src move) int {
 		}
 
 		if AllHome(burrow, homeRooms) {
-			moves := make([]move, 0)
 			// burrow.Print()
 			// // We're there, backtrace through path to calculate score
 			// score := 0
 			score := gScore[current]
-			for current != src {
-				moves = append(moves, current)
-				current = path[current]
-			}
+			if *debug {
+				moves := make([]move, 0)
+				for current != src {
+					moves = append(moves, current)
+					current = path[current]
+				}
 
-			burrow := CreateBurrowFromKey(src.burrow)
-			burrow.Print()
-			fmt.Println()
-
-			for i := len(moves) - 1; i >= 0; i-- {
-				move := moves[i]
-				burrow = burrow.applyMove(move)
-
+				burrow := CreateBurrowFromKey(src.burrow)
 				burrow.Print()
-				fmt.Printf("Move %s from %d[%d] to %d[%d]\n", string(move.mob), move.from, move.fromSlot, move.to, move.toSlot)
-				fmt.Println("costing: ", move.cost)
 				fmt.Println()
+
+				for i := len(moves) - 1; i >= 0; i-- {
+					move := moves[i]
+					burrow = burrow.applyMove(move)
+
+					burrow.Print()
+					fmt.Printf("Move %s from %d[%d] to %d[%d]\n", string(move.mob), move.from, move.fromSlot, move.to, move.toSlot)
+					fmt.Println("costing: ", move.cost)
+					fmt.Println()
+				}
 			}
 			return score
 		}
