@@ -1,86 +1,56 @@
-package main
+/*
 
-import (
-	"flag"
-	"fmt"
-	"io/ioutil"
-	"strconv"
-	"strings"
-)
+No Code. Worked it out by hand
 
-var inputFile = flag.String("inputFile", "inputs/day02.input", "Relative file path to use as input.")
-var part = flag.String("part", "a", "Which part to solve")
+Repeatedly performs an 18 line function
 
-type ALU struct {
-	code      []string
-	ip        int
-	registers map[string]int
-}
 
-func NewALU(code []string) *ALU {
-	return &ALU{code: code, ip: 0, registers: map[string]int{"w": 0, "x": 0, "y": 0, "z": 0}}
-}
+Takes three inputs
 
-func (a *ALU) Process() {
-	for a.ip < len(a.code) {
-		parts := strings.Split(a.code[a.ip], " ")
+Line +5  DIVIDER
+Line +6  CHECK
+Line +16
 
-		switch parts[0] {
-		case "inp":
-			a.registers[parts[1]] = getInput()
-		case "add":
-			a.registers[parts[1]] += a.parseVariable(parts[2])
-		case "mul":
-			a.registers[parts[1]] *= a.parseVariable(parts[2])
-		case "div":
-			a.registers[parts[1]] /= a.parseVariable(parts[2])
-		case "mod":
-			a.registers[parts[1]] %= a.parseVariable(parts[2])
-		case "eql":
-			var result int
-			if a.registers[parts[1]] == a.registers[parts[2]] {
-				result = 1
-			} else {
-				result = 0
-			}
+And reads one digit from inputs
 
-			a.registers[parts[1]] = result
-		}
-		a.ip++
-		fmt.Println(a.registers)
-	}
-}
+line +1
 
-func (a *ALU) parseVariable(variable string) int {
-	n, err := strconv.Atoi(variable)
-	if err == nil {
-		return n
-	}
+Set w = input
+Set x = (z%26) + CHECK
+set z = z / DIVIDER
+set x = x!=w?1:0
+set z = z * ((25*x)+1)
+set z = z + ((w+offset)*x)
 
-	if n, ok := a.registers[variable]; ok {
-		return n
-	}
+if DIVIDER == 26
+    Pop last digit from z
+if last digit of z + CHECK == w then
+    z = z
+else
+    z = z * 26 + w + OFFSET
 
-	fmt.Println("illegal variable: ", variable)
-	return -1
 
-}
+DIVIDER is always 26 if CHECK <= 0
 
-func getInput() int {
-	return 1
-}
+SO
 
-func main() {
-	flag.Parse()
-	bytes, err := ioutil.ReadFile(*inputFile)
-	if err != nil {
-		return
-	}
-	contents := string(bytes)
-	lines := strings.Split(contents, "\n")
-	a := NewALU(lines)
-	a.Process()
+If CHECK >0
+    z = z * 26 + (w+offset) // PUSH
+else
+    POP last digit
+    mem = z % 26
+    z = z / 26
+    if mem+check !+ w
+        z = 26*z+(w+offset)
 
-	fmt.Println(a.registers)
+z is a radix 26 number that is having digits popped off and pushed on like a stack
 
-}
+So to get z==0 at the end, we must empty the stack, i.e. pop the last digit off z
+
+... follow along with https://github.com/kemmel-dev/AdventOfCode2021/blob/master/day24/AoC%20Day%2024.pdf which is a better write up than I am doing
+*/
+
+
+
+
+
