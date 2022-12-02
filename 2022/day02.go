@@ -35,11 +35,12 @@ func main() {
 	totalScore := 0
 	totalScoreB := 0
 	for _, line := range lines {
-		parts := strings.Split(line, " ")
-		// Part A
-		opp := parts[0][0]
-		me := parts[1][0]
-		result := parts[1][0]
+		if len(line) < 3 {
+			fmt.Errorf("invalid line: %s", line)
+		}
+		opp := line[0]
+		me := line[2]
+		result := line[2]
 
 		totalScore = totalScore + getScore(me, opp)
 		totalScoreB = totalScoreB + getScore(getPlay(opp, result), opp)
