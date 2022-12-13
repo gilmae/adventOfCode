@@ -16,66 +16,53 @@ data.each_with_index { |line, row|
   }
 }
 
-def get_neightbours(board, point)
+board[start] = 96
+board[dest] = 123
+
+def get_neighbours(board, point)
   x, y = point
   points = []
-  (-1..1).each { |col|
-    (-1..1).each { |row|
-      next if col == 0 && row == 0
-      points << [x + col, y + row]
-    }
+  [[0, -1], [0, 1], [-1, 0], [1, 0]].each { |d|
+    dx, dy = d
+    points << [x + dx, y + dy]
   }
   points
 end
 
 def can_travel(board, cur, dest)
-  curX, curY = cur
-  destX, destY = dest
-
-  return false if curX != destX && curY != destY
-
-  return board[dest] && (board[cur] = STARTTILE || board[dest] - board[cur] == 1)
+  return board[dest] && (board[dest] - board[cur] <= 1)
 end
 
-def AStarElevations(board, start, dest)
-  work = { start => true }
+def move_from(board, start, dest)
+  work = [[start, 0]]
+  visited = {}
 
-  gScore = { start => 0 }
-  fScore = { start => 1 }
+  while !work.empty?
+    # this was pop before, so I think it mean I was getting longest path.
+    # I....I nearly cried when I worked it out
+    current, steps = work.shift
+    next if visited[current]
 
-  path = {}
+    return steps if current == dest
 
-  while work.length > 0
-    current = nil
-    currentScore = (2 ** (0.size * 8 - 2) - 1)
+    visited[current] = true
 
-    work.each { |key, _|
-      score = fScore[key]
-
-      if score < currentScore
-        current = key
-        currentScore = score
-      end
+    get_neighbours(board, current).each { |target|
+      work.append [target, steps + 1] if can_travel board, current, target
     }
-    work.delete(current)
-
-    if current == dest
-      pp "found it"
-      return path.length
-    else
-      get_neightbours(board, current).reject { |p| !can_travel(board, current, p) }.each { |n|
-        tentative_score = gScore[current] + 1
-        previous_score = gScore[n]
-
-        if !previous_score || tentative_score < previous_score
-          path[n] = current
-          gScore[n] = tentative_score
-          fScore[n] = tentative_score + 2
-          work[n] = true if !work[n]
-        end
-      }
-    end
   end
+
+  return nil
 end
 
-pp AStarElevations(board, start, dest)
+pp move_from(board, start, dest)
+
+paths = []
+board.each { |k, v|
+  if v == 97
+    path = move_from(board, k, dest)
+    paths << path if path != nil
+  end
+}
+
+pp paths.min
