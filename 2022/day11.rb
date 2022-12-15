@@ -1,18 +1,5 @@
 data = File.readlines("inputs/day11.input").map(&:chomp)
 
-class Integer
-  def prime_factors
-    num = self
-    (2...num).each do |fact|
-      if (num % fact == 0)
-        other_fact = num / fact
-        return [*fact.prime_factors, *other_fact.prime_factors]
-      end
-    end
-    return self
-  end
-end
-
 class Monkey
   attr_accessor :items, :trueDest, :falseDest, :divisor, :mutator, :inspections
 
