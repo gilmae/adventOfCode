@@ -33,8 +33,9 @@ def can_travel(board, cur, dest)
   return board[dest] && (board[dest] - board[cur] <= 1)
 end
 
-def move_from(board, start, dest)
-  work = [[start, 0]]
+def move_from(board, starting_points, dest)
+  work = starting_points.map { |s| [s, 0] }
+
   visited = {}
 
   while !work.empty?
@@ -55,14 +56,11 @@ def move_from(board, start, dest)
   return nil
 end
 
-pp move_from(board, start, dest)
+pp move_from(board, [start], dest)
 
-paths = []
+starting_points = []
 board.each { |k, v|
-  if v == 97
-    path = move_from(board, k, dest)
-    paths << path if path != nil
-  end
+  starting_points << k if v == 97
 }
 
-pp paths.min
+pp move_from(board, starting_points, dest)
