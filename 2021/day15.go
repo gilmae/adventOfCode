@@ -79,7 +79,7 @@ func AStarCave(risks *boards.Board, src, dst *boards.Coords) int {
 				}
 			}
 		}
-		// get an item off the work quete
+		// get an item off the work queue
 
 		delete(work, current)
 
