@@ -43,10 +43,6 @@ def change_facing(cur, change)
   cur
 end
 
-def check_blocked(point)
-  return
-end
-
 def wrap(n, facing)
   if facing == LEFT || facing == RIGHT
     bounds = row_bounds n[1]
@@ -98,4 +94,4 @@ COMMANDS.each { |cmd|
   end
 }
 # pp wrap [12, 5], RIGHT
-pp (pos[0] + 1) * 4 + 1000 * (pos[1] + 1) + facing
+pp (pos[0] + 1) * 4 + (1000 * (pos[1] + 1)) + facing
