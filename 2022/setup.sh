@@ -1,6 +1,6 @@
 #! zsh
 
-cp template $1.go
+#cp template $1.go
 cp template2 $1.rb
 
 sed -i '' "s/xxxxx/$1/g" $1.*
