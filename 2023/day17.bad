@@ -1,0 +1,109 @@
+data = File.readlines("inputs/day17.sample2.input").map(&:chomp)
+
+def manhattan(p1, p2)
+  return (p1[0] - p2[0]).abs() + (p1[1] - p2[1]).abs()
+end
+
+def diff(p1, p2)
+  return [p2[0] - p1[0], p2[1] - p1[1]]
+end
+
+def add(p1, d)
+  return [p1[0] + d[0], p1[1] + d[1]]
+end
+
+def in_bounds(p, min, max)
+  return p[0].between?(min[0], max[0]) && p[1].between?(min[1], max[1])
+end
+
+def get_directions(current, path, src)
+  directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+
+  parent = path[current]
+
+  if parent.nil?
+    puts "No parent from #{current}"
+    return directions
+  end
+
+  parent_diff = diff current, parent
+  directions.delete(parent_diff)
+
+  last_three = [diff(parent, current)]
+  t = 1
+  p = parent
+  while t < 3 && p != src
+    t += 1
+    next_p = path[p]
+    next if next_p.nil?
+    last_three << diff(next_p, p)
+    p = next_p
+  end
+
+  return directions if last_three.length < 3
+
+  directions.delete last_three[0] if last_three.uniq.length == 1
+
+  directions
+end
+
+def astar(board, src, dest)
+  work = { src => true }
+  gScore = { src => 0 }
+  fScore = { src => manhattan(src, dest) }
+
+  path = {}
+
+  while work.length != 0
+    current = []
+    currentScore = 9223372036854775806
+
+    work.each { |w, _|
+      score = fScore[w]
+      if !score.nil? && score < currentScore
+        current = w
+        currentScore = score
+      end
+    }
+
+    work.delete(current)
+
+    if current == dest
+      # We're there, backtrace through path to calculate score
+      score = 0
+      while current != src
+        pp current
+        score += board[current]
+        current = path[current]
+      end
+      return score
+    else
+      directions = get_directions current, path, src
+
+      directions.each { |d|
+        n = add(current, d)
+        next if !in_bounds(n, src, dest)
+        tentativeScore = gScore[current] + board[n]
+        previousScore = gScore[n]
+        if previousScore.nil? || tentativeScore < previousScore
+          path[n] = current
+          gScore[n] = tentativeScore
+          fScore[n] = tentativeScore + manhattan(n, dest)
+          work[n] = true if !work[n]
+        end
+      }
+    end
+  end
+end
+
+board = {}
+data.each_with_index { |line, row|
+  line.chars.each_with_index { |c, col|
+    board[[col, row]] = c.to_i
+  }
+}
+
+destination = [data[0].length - 1, data.length - 1]
+
+pp astar board, [0, 0], destination
+#A*
