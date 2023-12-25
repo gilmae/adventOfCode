@@ -38,6 +38,7 @@ data.each_with_index { |line, row|
 }
 start = [1, 0]
 goal = [data[0].length - 2, data.length - 1]
+GOAL = goal
 
 nodes = [start, goal]
 
@@ -51,6 +52,7 @@ HEIGHT.times { |y|
 def get_distances(nodes, board, partA)
   distances = {}
   nodes.each { |n|
+    distances[n] = []
     queue = [[n, 0]]
     seen = {}
     while !queue.empty?
@@ -59,7 +61,7 @@ def get_distances(nodes, board, partA)
       next unless seen[cur].nil?
       seen[cur] = true
       if nodes.include?(cur) && steps > 0
-        distances[[n, cur]] = steps
+        distances[n] << [cur, steps]
         next
       end
 
@@ -73,55 +75,51 @@ end
 
 distancesA = get_distances nodes, board, true
 distancesB = get_distances nodes, board, false
-#distancesB.delete_if { |k, _| k[0] == start || k[1] == start }
-
-nodes.each { |n|
-  queue = [[n, 0]]
-  seen = {}
-  while !queue.empty?
-    cur, steps = queue.shift
-
-    next unless seen[cur].nil?
-    seen[cur] = true
-    if nodes.include?(cur) && steps > 0
-      distancesA[[n, cur]] = steps
-      next
-    end
-
-    get_neighbours(cur, board, true).each { |n|
-      queue << [n, steps + 1]
-    }
-  end
-}
 
 def get_neighbour_nodes(cur, distances)
   distances.filter { |k, _| k[0] == cur }.map { |k, v| [k[1], v] }
 end
 
-#pp distances
-
-def solve(start, goal, distances, partA)
+def solve(start, goal, distances)
   queue = [[start, 0, []]]
   seen = []
   max_distance = -1
   while !queue.empty?
     cur, steps, path = queue.shift
-
-    next if path.include? cur
-
+    pp path.length
     if cur == goal
       max_distance = steps if steps > max_distance
       next
     end
+    next if path.include? cur
 
-    get_neighbour_nodes(cur, distances).each { |nn|
-      queue.unshift([nn[0], steps + nn[1], path + [cur]])
+    distances[cur].each { |neighbour, dist|
+      queue.unshift[neighbour, steps + dist, path + [cur]]
     }
   end
   max_distance
 end
 
-pp solve(start, goal, distancesA, true)
-#pp solve(start, goal, distancesB, false)
+SEEN = {}
+@answer = -1
 
-pp nodes.map { |n| [n, distancesB.filter { |k, _| k[1] == n }.length] }
+def dfs(start, steps, distances)
+  if SEEN[start]
+    return 0
+  end
+
+  SEEN[start] = true
+  if start == GOAL
+    @answer = [steps, @answer].max
+  end
+  distances[start].each { |neighbour, dist|
+    dfs(neighbour, steps + dist, distances)
+  }
+  SEEN[start] = false
+end
+
+dfs(start, 0, distancesA)
+pp @answer
+@answer = 0
+dfs(start, 0, distancesB)
+pp @answer
