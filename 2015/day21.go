@@ -70,12 +70,12 @@ func main() {
 
 						if cost < cheapest {
 							cheapest = cost
-							fmt.Println(cost, w, a, r1, r2, myDps, bossDps, myKillRate, bossKillRate)
+							//fmt.Println(cost, w, a, r1, r2, myDps, bossDps, myKillRate, bossKillRate)
 						}
 					} else {
 						if cost > expensivist {
 							expensivist = cost
-							fmt.Println(cost, w, a, r1, r2, myDps, bossDps, myKillRate, bossKillRate)
+							//fmt.Println(cost, w, a, r1, r2, myDps, bossDps, myKillRate, bossKillRate)
 						}
 					}
 
