@@ -1,29 +1,27 @@
 data = File.readlines("inputs/day05.input").map(&:chomp)
 
 predecessors = {}
-antecessors = {}
-
 idx = 0
 
 while data[idx] != ""
   p,a = data[idx].split("|")
   predecessors[p] ||= []
   predecessors[p] << a
-  antecessors[a] ||= []
-  antecessors[a] << p
   idx+=1
 end 
 
-idx+=1
-updates = data[idx..]
+partA = 0
+partB = 0
 
-pp updates.map {|u|#
+data[idx+1..].each {|u|
   pages = u.split(",")
+  test = pages.sort{|a,b| (predecessors.has_key?(a) && predecessors[a].include?(b))?-1:1}.join(",")
+  
+  if test != u
+    partB += pages[pages.length/2].to_i
+  else
+    partA += pages[pages.length/2].to_i
+  end
+}
 
-  valid = true
-  pages[1..].each_with_index {|p,idx|
-    pre = predecessors[pages[idx]]
-    valid &= !pre.nil? && pre.include?(p)
-  }
-  valid ? pages[pages.length/2].to_i : 0
-}.sum
+pp partA, partB
