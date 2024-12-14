@@ -52,20 +52,55 @@ def fill start, board
   region
 end
 
+def count_corners board, point, region
+  fences = board[point][1]
+  num_corners = 0
+  # internal corners
+  [[0,1],[1,2],[2,3],[3,0]].each {|side1,side2|
+    num_corners+=1 if fences.include?(side1) && fences.include?(side2)
+  }
+
+  #external corners
+  x,y = point
+  npoint = [x,y-1]
+  spoint = [x,y+1]
+  epoint = [x+1,y]
+  wpoint = [x-1,y]
+  
+  #NE
+  num_corners+=1 if has_side?(board, region, npoint, 1) && has_side?(board, region, epoint, 0)
+  #NW
+  num_corners+=1 if has_side?(board, region, npoint, 3) && has_side?(board, region, wpoint, 0)
+
+  #SE
+  num_corners+=1 if has_side?(board, region, spoint, 1) && has_side?(board, region, epoint, 2)
+  #SW
+  num_corners+=1 if has_side?(board, region, spoint, 3) && has_side?(board, region, wpoint, 2)
+
+  num_corners
+end
+
+def has_side? board, region, point, fence
+  return false if board[point].nil?
+  return false if !region.include? point
+  return board[point][1].include? fence
+end
+
 board.each {|k,v|
   next if SEEN.has_key? k
   ch,_ = v
-
-  
   region = fill k, board
-  
   regions << region.uniq
 }
 
 pp regions.map {|r|
-  area = r.length
-  perimeter = r.map{|p|
+  r.length * r.map{|p|
     board[p][1].length
   }.sum
-  area*perimeter
+}.sum
+
+pp regions.map {|r|
+  r.length *  r.map{|p|
+      count_corners board, p, r
+  }.sum 
 }.sum
