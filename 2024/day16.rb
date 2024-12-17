@@ -1,3 +1,5 @@
+require "pqueue"
+
 data = File.readlines("inputs/day16.input").map(&:chomp)
 board = {}
 dest = nil
@@ -12,12 +14,12 @@ data.each_with_index { |line, y|
 H = data.length
 W = data[0].length
 directions = [[0,-1],[1,0],[0,1], [-1,0]]
-work = [[start, [1,0], 0, {}]]
+work = PQueue.new([[start, [1,0], 0, {}]]) { |a, b| a[2] > b[2] }
 min_cost = 1e9
-path = {}
+best_paths = []
 visited = {}
 
-PIXELS = {'#'=>'#', [0,-1]=>'^',[1,0]=>'>',[0,1]=>'v', [-1,0]=>'<'}
+PIXELS = {'#'=>'#', true=>'O'}
 def print_board(board)
   minx, miny, maxx, maxy = 0,0,W,H
   (miny..maxy).each { |y|
@@ -34,12 +36,15 @@ loop {
   
   pos, facing, cost, seen = job
   previous = visited[[pos,facing]]
-  next if cost >= min_cost || (!previous.nil? && cost >= previous)
+  next if cost > min_cost || (!previous.nil? && cost > previous)
 
   if pos==dest
-    min_cost = cost if cost < min_cost
-    path = seen
-    next
+    if cost < min_cost
+      min_cost = cost 
+      best_paths = [seen]
+    elsif cost == min_cost
+      best_paths << seen
+    end
   end
   
   next if board[pos] == "#"
@@ -56,9 +61,9 @@ loop {
     next_pos = [x+dx, y+dy]
     next if seen.has_key? next_pos
     cost_modifier+= 1000 if d != facing
-    work.push [[x+dx,y+dy],d,cost+cost_modifier, {pos=>facing}.merge(seen)]  
+    work << [[x+dx,y+dy],d,cost+cost_modifier, {pos=>facing}.merge(seen)]  
   }
 }
 
 pp min_cost
-#print_board path.merge(board)
+pp best_paths.map{|p|p.keys}.reduce(&:+).uniq.length
