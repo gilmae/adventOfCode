@@ -5,7 +5,6 @@ def run_program ops, registers
   ip=0
   stdout = []
   loop {
-    registers = registers.map(&:to_i)
     break if ip >= ops.length
     instruction = ops[ip]
     literal_operand = ops[ip+1]
@@ -13,7 +12,7 @@ def run_program ops, registers
     ip+=2
     case (instruction) 
       when 0 #adv
-        registers[0] = (registers[0] / 2**combo_operand).to_i
+        registers[0] = registers[0] / 2**combo_operand
       when 1 #bxl
         registers[1] = registers[1] ^ literal_operand
       when 2 #bst
@@ -25,9 +24,9 @@ def run_program ops, registers
       when 5 #out
         stdout << (combo_operand%8)
       when 6 #bdv
-        registers[1] = (registers[0]/2**combo_operand).to_i
+        registers[1] = registers[0]/2**combo_operand
       when 7 #cdv
-        registers[2] = (registers[0]/2**combo_operand).to_i
+        registers[2] = registers[0]/2**combo_operand
     end
   }
   stdout
