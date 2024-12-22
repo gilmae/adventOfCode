@@ -28,6 +28,22 @@ def memoise_get_shortest pad, num_d_pads, layer, start, dest
   m
 end
 
+def x_first_then_y start, dest, dx, dy, x_distance, y_distance, num_d_pads, layer
+  memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + 
+  x_distance + 
+  memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dy) + 
+  y_distance + 
+  memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A")
+end
+
+def y_first_then_x start, dest, dx, dy, x_distance, y_distance, num_d_pads, layer
+  memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + 
+  y_distance + 
+  memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dx) + 
+  x_distance + 
+  memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A")
+end
+
 def get_shortest pad, num_d_pads, layer, start, dest
   return 1 if layer == 0
   start = index_of(pad, start) if start.is_a? String 
@@ -35,46 +51,27 @@ def get_shortest pad, num_d_pads, layer, start, dest
   
   dy = ['v',nil,'^'][(start[1]<=>dest[1])+1]
   dx = ['>',nil,'<'][(start[0]<=>dest[0])+1]
+  x_distance = ((dest[0] - start[0]).abs - 1)
+  y_distance = ((dest[1] - start[1]).abs - 1)
 
-  return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", "A") if dx.nil? && dy.nil?
-  return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A") if dy.nil?
-  return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A") if dx.nil?
+  return 1 if dx.nil? && dy.nil?
+  
+  return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + x_distance + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A") if dy.nil?
+  return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + y_distance + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A") if dx.nil?
   
   if layer < num_d_pads
-        return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + 
-                    ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dy) + 
-                    ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A") if start[0] == 0
-      
-        return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + 
-                    ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dx) + 
-                    ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A") if dest[0] == 0
-      
-      
-        return [
-          memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dy) + ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A"),
-          memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dx) + ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A")
+    return x_first_then_y(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer) if start[0] == 0
+    return y_first_then_x(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer) if dest[0] == 0
+    return [
+      x_first_then_y(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer),
+      y_first_then_x(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer)
     ].min
   else
-    return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + 
-                    ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dy) + 
-                    ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A") if start[0] == 0 && dest[1] == 3
-      
-        return memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + 
-                    ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dx) + 
-                    ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + 
-                    memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A") if dest[0] == 0 && start[1] == 3
-      
-      
-        return [
-          memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dx) + ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dy) + ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, "A"),
-          memoise_get_shortest(D_PAD, num_d_pads, layer-1, "A", dy) + ((dest[1] - start[1]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dy) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dy, dx) + ((dest[0] - start[0]).abs - 1) * memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, dx) + memoise_get_shortest(D_PAD, num_d_pads, layer-1, dx, "A")
+    return x_first_then_y(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer) if start[0] == 0 && dest[1] == 3
+    return y_first_then_x(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer) if dest[0] == 0 && start[1] == 3
+    return [
+      x_first_then_y(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer),
+      y_first_then_x(start,dest,dx,dy,x_distance, y_distance, num_d_pads, layer)
     ].min
   end
 end
