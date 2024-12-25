@@ -49,3 +49,5 @@ echo "Day 22"
 ruby day22.rb
 echo "Day 23"
 ruby day23.rb
+echo "Day 24"
+ruby day24.rb
